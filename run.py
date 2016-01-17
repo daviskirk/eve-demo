@@ -17,6 +17,9 @@
 
 import os
 from eve import Eve
+from eve.methods.post import post_internal
+from settings import MONGO_PASSWORD, MONGO_USERNAME, MONGO_DBNAME, DOMAIN, MONGO_HOST, MONGO_PORT
+from flask.ext.pymongo import MongoClient
 
 # Heroku support: bind to PORT if defined, otherwise default to 5000.
 if 'PORT' in os.environ:
@@ -30,6 +33,17 @@ else:
 
 app = Eve()
 
+# This is just to make sure that the database and user actually exists on a
+# clean docker image mongodb startup
+connection = MongoClient(MONGO_HOST, MONGO_PORT)
+connection.drop_database(MONGO_DBNAME)
+if MONGO_USERNAME:
+    connection[MONGO_DBNAME].add_user(MONGO_USERNAME, MONGO_PASSWORD)
+connection.close()
+
+with app.test_request_context():
+    result = post_internal('people', {'firstname': 'first', 'lastname': 'TestName'})
+    print(result)
 
 if __name__ == '__main__':
     app.run(host=host, port=port)

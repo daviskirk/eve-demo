@@ -20,6 +20,7 @@
 
 import os
 
+URL_PREFIX = 'api'
 # We want to seamlessy run our API both locally and on Heroku. If running on
 # Heroku, sensible DB connection settings are stored in environment variables.
 MONGO_HOST = os.environ.get('MONGO_HOST', 'localhost')
